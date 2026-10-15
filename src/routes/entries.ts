@@ -5,6 +5,7 @@ import { requireAuth } from '../auth.js';
 import { HttpError } from '../lib/errors.js';
 import { setClauses } from '../lib/sql.js';
 import { idSchema, monthSchema, parse } from '../lib/validate.js';
+import { formatNotificationAmount, notifyHousehold } from '../lib/line-notifications.js';
 import type { Entry, Env } from '../types.js';
 
 export const entries = new Hono<Env>();
@@ -140,7 +141,18 @@ entries.post('/', async (c) => {
       b.sortOrder ?? null,
     ],
   );
-  return c.json(await withTotal(rows[0]), 201);
+  const entry = await withTotal(rows[0]);
+  const expenseAmount =
+    amountSatang === null ? 'กลุ่มรายจ่าย (ยอดรวมคำนวณจากรายการย่อย)' : formatNotificationAmount(amountSatang);
+  try {
+    await notifyHousehold({
+      householdId,
+      message: `มีการเพิ่มรายจ่าย\nรายการ: ${b.name}\nจำนวน: ${expenseAmount}\nเดือน: ${b.month}`,
+    });
+  } catch (error) {
+    console.error('Failed to send LINE notification for new expense entry', error);
+  }
+  return c.json(entry, 201);
 });
 
 entries.patch('/:id', async (c) => {
