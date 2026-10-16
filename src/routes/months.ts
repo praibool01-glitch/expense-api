@@ -18,7 +18,7 @@ months.get('/:month', async (c) => {
     pool.query<EntryRow>(
       `select ${ENTRY_COLS} from entries
         where household_id = $1 and month = $2::date
-        order by created_at desc, sort_order desc`,
+        order by amount_satang asc nulls first, created_at desc, sort_order desc`,
       [householdId, monthDate],
     ),
     pool.query<{
