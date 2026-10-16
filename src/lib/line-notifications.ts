@@ -22,8 +22,17 @@ export async function notifyHousehold({ householdId, message }: Notification) {
   );
 
   // DEV_AUTH IDs are local test identities and cannot receive LINE messages.
-  const recipients = rows.map((row) => row.line_user_id).filter((id) => !id.startsWith('dev:'));
-  if (recipients.length === 0) return;
+  const devAuthMemberCount = rows.filter((row) => row.line_user_id.startsWith('dev:')).length;
+  const recipients = rows
+    .map((row) => row.line_user_id)
+    .filter((id) => !id.startsWith('dev:'));
+  if (recipients.length === 0) {
+    console.warn('LINE notification skipped: no eligible recipients', {
+      memberCount: rows.length,
+      devAuthMemberCount,
+    });
+    return;
+  }
   if (!config.lineChannelAccessToken) {
     throw new Error('LINE_CHANNEL_ACCESS_TOKEN is not configured');
   }
@@ -61,6 +70,11 @@ export async function notifyHousehold({ householdId, message }: Notification) {
   if (failures.length > 0) {
     throw new Error(`LINE multicast notification failed (${failures.join('; ')})`);
   }
+
+  console.info('LINE multicast request accepted', {
+    recipientCount: recipients.length,
+    batchCount: Math.ceil(recipients.length / MAX_RECIPIENTS_PER_REQUEST),
+  });
 }
 
 export function formatNotificationAmount(amountSatang: number) {
@@ -106,7 +120,7 @@ export function formatExpenseNotification({
     `📌 ${cleanNotificationName(name)}`,
     amountSatang === null
       ? '💸 กลุ่มรายจ่าย (ยอดรวมคำนวณจากรายการย่อย)'
-      : `💸 −${formatNotificationAmount(amountSatang)}`,
+      : `💸 -${formatNotificationAmount(amountSatang)}`,
     `📅 เดือน ${month}`,
   ].join('\n');
 }
