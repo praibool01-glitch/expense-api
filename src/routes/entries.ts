@@ -21,9 +21,10 @@ export type EntryRow = {
   is_paid: boolean;
   created_by: string | null;
   sort_order: number;
+  created_at: Date;
 };
 export const ENTRY_COLS =
-  'id, parent_id, name, amount_satang, category_id, note, is_paid, created_by, sort_order';
+  'id, parent_id, name, amount_satang, category_id, note, is_paid, created_by, sort_order, created_at';
 
 export const toEntry = (r: EntryRow): Entry => ({
   id: r.id,
@@ -36,6 +37,7 @@ export const toEntry = (r: EntryRow): Entry => ({
   isPaid: r.is_paid,
   createdBy: r.created_by,
   sortOrder: r.sort_order,
+  createdAt: r.created_at.toISOString(),
 });
 
 const amount = z.number().int().min(0);

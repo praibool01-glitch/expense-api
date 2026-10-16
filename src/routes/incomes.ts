@@ -11,13 +11,20 @@ import type { Env } from '../types.js';
 export const incomes = new Hono<Env>();
 incomes.use('*', requireAuth);
 
-type Row = { id: string; name: string; amount_satang: number; created_by: string | null };
-const COLS = 'id, name, amount_satang, created_by';
+type Row = {
+  id: string;
+  name: string;
+  amount_satang: number;
+  created_by: string | null;
+  created_at: Date | null;
+};
+const COLS = 'id, name, amount_satang, created_by, created_at';
 const toIncome = (r: Row) => ({
   id: r.id,
   name: r.name,
   amountSatang: r.amount_satang,
   createdBy: r.created_by,
+  createdAt: r.created_at?.toISOString() ?? null,
 });
 
 const name = z.string().trim().min(1).max(100);

@@ -21,8 +21,14 @@ months.get('/:month', async (c) => {
         order by sort_order, created_at`,
       [householdId, monthDate],
     ),
-    pool.query<{ id: string; name: string; amount_satang: number; created_by: string | null }>(
-      `select id, name, amount_satang, created_by from incomes
+    pool.query<{
+      id: string;
+      name: string;
+      amount_satang: number;
+      created_by: string | null;
+      created_at: Date | null;
+    }>(
+      `select id, name, amount_satang, created_by, created_at from incomes
         where household_id = $1 and month = $2::date
         order by name, id`,
       [householdId, monthDate],
@@ -73,6 +79,7 @@ months.get('/:month', async (c) => {
       name: r.name,
       amountSatang: r.amount_satang,
       createdBy: r.created_by,
+      createdAt: r.created_at?.toISOString() ?? null,
     })),
     summary: {
       totalExpenseSatang,
