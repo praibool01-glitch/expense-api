@@ -16,6 +16,7 @@ type Row = {
   name: string;
   amount_satang: number;
   created_by: string | null;
+  created_by_name?: string | null;
   created_at: Date | null;
 };
 const COLS = 'id, name, amount_satang, created_by, created_at';
@@ -24,6 +25,7 @@ const toIncome = (r: Row) => ({
   name: r.name,
   amountSatang: r.amount_satang,
   createdBy: r.created_by,
+  createdByName: r.created_by_name ?? null,
   createdAt: r.created_at?.toISOString() ?? null,
 });
 

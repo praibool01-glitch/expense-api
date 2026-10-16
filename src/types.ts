@@ -12,6 +12,7 @@ export type Entry = {
   note: string | null;
   isPaid: boolean;
   createdBy: string | null;
+  createdByName: string | null;
   sortOrder: number;
   createdAt: string;
   children?: Entry[];

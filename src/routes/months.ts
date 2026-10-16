@@ -16,7 +16,9 @@ months.get('/:month', async (c) => {
 
   const [entryRes, incomeRes, summaryRes] = await Promise.all([
     pool.query<EntryRow>(
-      `select ${ENTRY_COLS} from entries
+      `select ${ENTRY_COLS},
+              (select display_name from users where id = entries.created_by) as created_by_name
+         from entries
         where household_id = $1 and month = $2::date
         order by amount_satang asc nulls first, created_at desc, sort_order desc`,
       [householdId, monthDate],
@@ -26,9 +28,12 @@ months.get('/:month', async (c) => {
       name: string;
       amount_satang: number;
       created_by: string | null;
+      created_by_name: string | null;
       created_at: Date | null;
     }>(
-      `select id, name, amount_satang, created_by, created_at from incomes
+      `select id, name, amount_satang, created_by,
+              (select display_name from users where id = incomes.created_by) as created_by_name,
+              created_at from incomes
         where household_id = $1 and month = $2::date
         order by name, id`,
       [householdId, monthDate],
@@ -79,6 +84,7 @@ months.get('/:month', async (c) => {
       name: r.name,
       amountSatang: r.amount_satang,
       createdBy: r.created_by,
+      createdByName: r.created_by_name,
       createdAt: r.created_at?.toISOString() ?? null,
     })),
     summary: {

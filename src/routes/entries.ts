@@ -23,6 +23,7 @@ export type EntryRow = {
   note: string | null;
   is_paid: boolean;
   created_by: string | null;
+  created_by_name?: string | null;
   sort_order: number;
   created_at: Date;
 };
@@ -39,6 +40,7 @@ export const toEntry = (r: EntryRow): Entry => ({
   note: r.note,
   isPaid: r.is_paid,
   createdBy: r.created_by,
+  createdByName: r.created_by_name ?? null,
   sortOrder: r.sort_order,
   createdAt: r.created_at.toISOString(),
 });
