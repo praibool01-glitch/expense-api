@@ -68,3 +68,45 @@ export function formatNotificationAmount(amountSatang: number) {
   const satang = String(amountSatang % 100).padStart(2, '0');
   return `${baht}.${satang} บาท`;
 }
+
+function cleanNotificationName(name: string) {
+  return name.replace(/[\r\n\t]+/g, ' ').trim();
+}
+
+export function formatIncomeNotification({
+  name,
+  amountSatang,
+  month,
+}: {
+  name: string;
+  amountSatang: number;
+  month: string;
+}) {
+  return [
+    '🟢 เงินเข้า',
+    '',
+    `📌 ${cleanNotificationName(name)}`,
+    `💰 +${formatNotificationAmount(amountSatang)}`,
+    `📅 เดือน ${month}`,
+  ].join('\n');
+}
+
+export function formatExpenseNotification({
+  name,
+  amountSatang,
+  month,
+}: {
+  name: string;
+  amountSatang: number | null;
+  month: string;
+}) {
+  return [
+    '🔴 เงินออก',
+    '',
+    `📌 ${cleanNotificationName(name)}`,
+    amountSatang === null
+      ? '💸 กลุ่มรายจ่าย (ยอดรวมคำนวณจากรายการย่อย)'
+      : `💸 −${formatNotificationAmount(amountSatang)}`,
+    `📅 เดือน ${month}`,
+  ].join('\n');
+}

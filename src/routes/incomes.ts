@@ -5,7 +5,7 @@ import { requireAuth } from '../auth.js';
 import { HttpError } from '../lib/errors.js';
 import { setClauses } from '../lib/sql.js';
 import { idSchema, monthSchema, parse } from '../lib/validate.js';
-import { formatNotificationAmount, notifyHousehold } from '../lib/line-notifications.js';
+import { formatIncomeNotification, notifyHousehold } from '../lib/line-notifications.js';
 import type { Env } from '../types.js';
 
 export const incomes = new Hono<Env>();
@@ -43,7 +43,11 @@ incomes.post('/', async (c) => {
   try {
     await notifyHousehold({
       householdId,
-      message: `มีการเพิ่มรายรับ\nรายการ: ${b.name}\nจำนวน: ${formatNotificationAmount(b.amountSatang)}\nเดือน: ${b.month}`,
+      message: formatIncomeNotification({
+        name: b.name,
+        amountSatang: b.amountSatang,
+        month: b.month,
+      }),
     });
   } catch (error) {
     console.error('Failed to send LINE notification for new income', error);
